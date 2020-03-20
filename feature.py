@@ -6,7 +6,7 @@ from sh.contrib import git
 @click.command()
 @click.argument('ticket')
 @click.argument('name')
-def cli(ticket, name):
+def feature(ticket, name):
     '''
     USAGE
         git-feature <ticket> <name>

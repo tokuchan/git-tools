@@ -10,6 +10,6 @@ setup(
     ],
     entry_points='''
         [console_scripts]
-        git-feature=feature:cli
+        git-feature=feature:feature
     ''',
 )

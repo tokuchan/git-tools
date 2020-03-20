@@ -11,5 +11,6 @@ setup(
     entry_points='''
         [console_scripts]
         git-feature=feature:feature
+        git-finish=feature:finish
     ''',
 )

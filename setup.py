@@ -7,10 +7,12 @@ setup(
     install_requires=[
         'Click',
         'sh',
+        'toolz',
     ],
     entry_points='''
         [console_scripts]
         git-feature=feature:feature
         git-finish=feature:finish
+        git-descendants=feature:descendants
     ''',
 )

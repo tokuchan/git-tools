@@ -1,9 +1,53 @@
 import click
 import sh
 import re
+import functools as fts
+import itertools as its
+import toolz.itertoolz as itz
+import toolz.functoolz as ftz
+from toolz.curried import map, filter
 from io import StringIO
 
 from sh.contrib import git
+
+@click.command()
+@click.option('--branch','-b',help='Default = HEAD. Specify a branch to get children for.')
+@click.option('--recursive/--no-recursive','-r/-R',help='Recursively include children of children.')
+@click.option('--show-upstream/--no-show-upstream','-u/-U',help='Show the upstream for each branch, a space, then the branch itself.')
+def descendants(branch, recursive, show_upstream):
+    '''
+    USAGE
+        git-children [--[no]-show-upstream] [--[no]-recursive] [--branch=<branch>]
+
+    DESCRIPTION
+	Show the children of this branch. Can recursively show descendents as
+        well. Can also show "upstream branch" format, suitable for piping to ``tsort``.
+    '''
+    git_rev_parse = sh.Command("git-rev-parse")
+    git_children = git_rev_parse.bake('--abbrev-ref', 'HEAD')
+    strip_upstreams = map(lambda x : x[1])
+    if not branch:
+        branch = str(git_children()).strip()
+    def get_children(branch):
+        git_upstreams = git.branch.bake('--format=%(upstream) %(refname)', '--list')
+        strip_strs = map( lambda x : x.strip())
+        make_pairs = map( lambda x : tuple(x.split(' ')))
+        keep_heads = filter( lambda x : re.match('refs/heads', x[1]))
+        strip_branch_refs = map( lambda x : tuple([x[0], re.sub('refs/.*?/', '', x[1])]))
+        strip_upstream_refs = map( lambda x : tuple([re.sub('refs/.*?/', '', x[0]), x[1]]))
+        keep_referrents = filter( lambda x : str(branch) == x[0])
+        compute_branches = ftz.compose(keep_referrents, strip_upstream_refs, strip_branch_refs, keep_heads, make_pairs, strip_strs)
+        return [ x for x in compute_branches(git_upstreams())]
+    def get_all_children(branch):
+        children = get_children(branch)
+        return list(itz.mapcat(get_all_children, strip_upstreams(children))) + children
+    branches = get_all_children(branch) if recursive else get_children(branch)
+    for (upstream, ref) in branches:
+        if show_upstream:
+            print(f'{upstream} {ref}')
+        else:
+            print(ref)
+    return 0
 
 @click.command()
 @click.argument('ticket')

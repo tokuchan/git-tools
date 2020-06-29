@@ -1,14 +1,15 @@
-import click
-import sh
-import re
 import functools as fts
 import itertools as its
-import toolz.itertoolz as itz
-import toolz.functoolz as ftz
-from toolz.curried import map, filter
+import re
 from io import StringIO
 
+import click
+import sh
+import toolz.functoolz as ftz
+import toolz.itertoolz as itz
 from sh.contrib import git
+from toolz.curried import filter, map
+
 
 @click.command()
 @click.option('--branch','-b',help='Default = HEAD. Specify a branch to get children for.')
@@ -51,18 +52,20 @@ def descendants(branch, recursive, show_upstream):
 
 @click.command()
 @click.argument('ticket')
+@click.argument('project_folder')
 @click.argument('name')
-def feature(ticket, name):
+def feature(ticket, project_folder, name):
     '''
     USAGE
-        git-feature <ticket> <name>
+        git-feature <ticket> <project folder> <name>
 
     DESCRIPTION
         Create a new GIT branch, tracking master, and setting upstream, named
-        following the pattern 'feature/<ticket>-<name>'. Other git-tools tools
-        will look for names following this pattern.
+        following the pattern 'feature/<ticket>__<project folder>__<name>'. Other git-tools tools
+        will look for names following this pattern. Spaces in <name> will be replaced with dashes.
     '''
-    br_name=f"feature/{ticket}-{name}"
+    name__interspersed_dashes = '-'.join(re.split(r'\s+', name))
+    br_name=f"feature/{ticket}__{project_folder}__{name}"
     click.echo(f"Calling git-feature to create {br_name}")
     try:
         print(git.checkout("-t", "-b", br_name, _err_to_out=True))

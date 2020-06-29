@@ -88,7 +88,7 @@ def feature(ticket, project_directory, name):
         will look for names following this pattern. Spaces in <name> will be replaced with dashes.
     """
     name__interspersed_dashes = "-".join(re.split(r"\s+", name))
-    br_name = f"feature/{ticket}__{project_directory}__{name}"
+    br_name = f"feature/{ticket}__{project_directory}__{name__interspersed_dashes}"
     click.echo(f"Calling git-feature to create {br_name}")
     try:
         print(git.checkout("-t", "-b", br_name, _err_to_out=True))

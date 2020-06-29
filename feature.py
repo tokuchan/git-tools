@@ -75,9 +75,9 @@ def descendants(branch, recursive, show_upstream):
 
 @click.command()
 @click.argument("ticket")
-@click.argument("project_folder")
+@click.argument("project_directory")
 @click.argument("name")
-def feature(ticket, project_folder, name):
+def feature(ticket, project_directory, name):
     """
     USAGE
         git-feature <ticket> <project folder> <name>
@@ -88,7 +88,7 @@ def feature(ticket, project_folder, name):
         will look for names following this pattern. Spaces in <name> will be replaced with dashes.
     """
     name__interspersed_dashes = "-".join(re.split(r"\s+", name))
-    br_name = f"feature/{ticket}__{project_folder}__{name}"
+    br_name = f"feature/{ticket}__{project_directory}__{name}"
     click.echo(f"Calling git-feature to create {br_name}")
     try:
         print(git.checkout("-t", "-b", br_name, _err_to_out=True))

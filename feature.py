@@ -91,9 +91,11 @@ def feature(ticket, project_directory, name):
     br_name = f"feature/{ticket}__{project_directory}__{name__interspersed_dashes}"
     click.echo(f"Calling git-feature to create {br_name}")
     try:
+        print(sh.jira.view(ticket))
         print(git.checkout("-t", "-b", br_name, _err_to_out=True))
-    except sh.ErrorReturnCode:
-        click.echo("Something went wrong!")
+        print(git.branch('--set-upstream-to=master', _err_to_out=True))
+    except sh.ErrorReturnCode as e:
+        click.echo(f"Something went wrong!\n\nException: {e}")
         return 1
     return 0
 

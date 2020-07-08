@@ -1,7 +1,9 @@
 import functools as fts
 import itertools as its
+import os
 import re
 from io import StringIO
+from pathlib import Path
 
 import click
 import sh
@@ -74,9 +76,29 @@ def descendants(branch, recursive, show_upstream):
 
 
 @click.command()
-@click.argument("ticket")
-@click.argument("project_directory")
-@click.argument("name")
+@click.option(
+    "-t",
+    "--ticket",
+    help="Specify the JIRA ticket to use.",
+    default=lambda: os.environ.get("CURRENT_JIRA_TASK", ""),
+    prompt=True,
+    show_default="CURRENT_JIRA_TASK",
+)
+@click.option(
+    "-p",
+    "--project-directory",
+    help='Specify the directory "tag" in which "git into" will look.',
+    default=lambda: Path.cwd().name,
+    prompt=True,
+    show_default="current directory",
+)
+@click.option(
+    "-n",
+    "--name",
+    help="Specify the phrase that describes this feature's reason to exist.",
+    default="Senseless change for no good reason",
+    prompt=True,
+)
 def feature(ticket, project_directory, name):
     """
     USAGE
@@ -93,7 +115,7 @@ def feature(ticket, project_directory, name):
     try:
         print(sh.jira.view(ticket))
         print(git.checkout("-t", "-b", br_name, _err_to_out=True))
-        print(git.branch('--set-upstream-to=master', _err_to_out=True))
+        print(git.branch("--set-upstream-to=master", _err_to_out=True))
     except sh.ErrorReturnCode as e:
         click.echo(f"Something went wrong!\n\nException: {e}")
         return 1

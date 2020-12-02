@@ -113,6 +113,7 @@ def feature(ticket, project_directory, name):
     br_name = f"feature/{ticket}__{project_directory}__{name__interspersed_dashes}"
     click.echo(f"Calling git-feature to create {br_name}")
     try:
+        print(git.checkout("master", _err_to_out=True))
         print(sh.jira.view(ticket))
         print(git.checkout("-t", "-b", br_name, _err_to_out=True))
         print(git.branch("--set-upstream-to=master", _err_to_out=True))

@@ -96,8 +96,9 @@ def descendants(branch, recursive, show_upstream):
     "-n",
     "--name",
     help="Specify the phrase that describes this feature's reason to exist.",
-    default="Senseless change for no good reason",
+    default=lambda: os.environ.get("CURRENT_JIRA_DESC", "Senseless change for no good reason."),
     prompt=True,
+    show_default="CURRENT_JIRA_DESC",
 )
 def feature(ticket, project_directory, name):
     """
